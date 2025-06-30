@@ -1,6 +1,5 @@
 import random
-from PIL import Image, ImageDraw, ImageFont
-import pystray
+import sys
 
 words = []
 
@@ -19,72 +18,90 @@ def get_random_word():
     """Returns a random word from the list."""
     return random.choice(words)
 
-def create_icon_image(word, font_size=48):
-    """Creates an icon image with the word written on it."""
-    width, height = 64, 64
-    image = Image.new('RGB', (width, height), 'white')
-    draw = ImageDraw.Draw(image)
+if sys.platform == 'darwin':
+    import rumps
 
-    try:
-        font = ImageFont.truetype("msyh.ttc", font_size)
-    except IOError:
+    class WordApp(rumps.App):
+        def __init__(self):
+            super(WordApp, self).__init__("Word", quit_button="Quit")
+            load_words()
+            self.title = get_random_word()
+            self.menu = ["Next Word"]
+
+        @rumps.clicked("Next Word")
+        def next_word(self, _):
+            self.title = get_random_word()
+    
+    def main():
+        app = WordApp()
+        app.run()
+
+else:  # For other platforms like Windows and Linux
+    from PIL import Image, ImageDraw, ImageFont
+    import pystray
+
+    def create_icon_image(word, font_size=48):
+        """Creates an icon image with the word written on it."""
+        width, height = 64, 64
+        image = Image.new('RGB', (width, height), 'white')
+        draw = ImageDraw.Draw(image)
+
         try:
-            font = ImageFont.truetype("arial.ttf", font_size)
+            font = ImageFont.truetype("msyh.ttc", font_size)
         except IOError:
-            font = ImageFont.load_default()
+            try:
+                font = ImageFont.truetype("arial.ttf", font_size)
+            except IOError:
+                font = ImageFont.load_default()
 
-    # Adjust font size to fit
-    while font.getbbox(word)[2] > width and font_size > 10:
-        font_size -= 2
-        try:
-            font = ImageFont.truetype(font.path, font_size)
-        except (IOError, AttributeError): # Handle default font or other errors
-            break
+        # Adjust font size to fit
+        while font.getbbox(word)[2] > width and font_size > 10:
+            font_size -= 2
+            try:
+                font = ImageFont.truetype(font.path, font_size)
+            except (IOError, AttributeError): # Handle default font or other errors
+                break
 
-    text_bbox = draw.textbbox((0, 0), word, font=font)
-    text_width = text_bbox[2] - text_bbox[0]
-    text_height = text_bbox[3] - text_bbox[1]
-    x = (width - text_width) / 2
-    y = (height - text_height) / 2
-    
-    draw.text((x, y-5), word, font=font, fill='black')
+        text_bbox = draw.textbbox((0, 0), word, font=font)
+        text_width = text_bbox[2] - text_bbox[0]
+        text_height = text_bbox[3] - text_bbox[1]
+        x = (width - text_width) / 2
+        y = (height - text_height) / 2
+        
+        draw.text((x, y-5), word, font=font, fill='black')
 
-    return image
+        return image
 
-def update_word(icon):
-    """Updates the icon's title and image with a new random word."""
-    new_word = get_random_word()
-    icon.title = new_word
-    icon.icon = create_icon_image(new_word)
+    def update_word(icon):
+        """Updates the icon's title and image with a new random word."""
+        new_word = get_random_word()
+        icon.title = new_word
+        icon.icon = create_icon_image(new_word)
 
-def on_next_word(icon, item):
-    """Callback for the 'Next Word' menu item."""
-    update_word(icon)
+    def on_next_word(icon, item):
+        """Callback for the 'Next Word' menu item."""
+        update_word(icon)
 
-def on_quit(icon, item):
-    """Callback for the 'Quit' menu item."""
-    icon.stop()
+    def on_quit(icon, item):
+        """Callback for the 'Quit' menu item."""
+        icon.stop()
 
-def main():
-    """Main function to set up and run the tray icon."""
-    load_words()
-    
-    initial_word = get_random_word()
-    image = create_icon_image(initial_word)
-    
-    menu = pystray.Menu(
-        pystray.MenuItem('Next Word', on_next_word),
-        pystray.Menu.SEPARATOR,
-        pystray.MenuItem('Quit', on_quit)
-    )
+    def main():
+        """Main function to set up and run the tray icon."""
+        load_words()
+        
+        initial_word = get_random_word()
+        image = create_icon_image(initial_word)
+        
+        menu = pystray.Menu(
+            pystray.MenuItem('Next Word', on_next_word),
+            pystray.Menu.SEPARATOR,
+            pystray.MenuItem('Quit', on_quit)
+        )
 
-    icon = pystray.Icon("wordlist_app", image, initial_word, menu)
-    
-    # The update_word function needs to be called to set the initial title
-    # on some platforms after the icon is created.
-    # The title is set in the constructor, so this is just for initial setup.
-    
-    icon.run()
+        icon = pystray.Icon("wordlist_app", image, initial_word, menu)
+        
+        icon.run()
 
 if __name__ == "__main__":
     main() 
