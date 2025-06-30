@@ -1,5 +1,5 @@
 import random
-from PIL import Image
+from PIL import Image, ImageDraw, ImageFont
 import pystray
 
 words = []
@@ -19,18 +19,43 @@ def get_random_word():
     """Returns a random word from the list."""
     return random.choice(words)
 
-def create_icon_image():
-    """Creates a simple 64x64 black image for the icon."""
-    width = 64
-    height = 64
-    color = (0, 0, 0)  # Black
-    image = Image.new('RGB', (width, height), color)
+def create_icon_image(word, font_size=48):
+    """Creates an icon image with the word written on it."""
+    width, height = 64, 64
+    image = Image.new('RGB', (width, height), 'white')
+    draw = ImageDraw.Draw(image)
+
+    try:
+        font = ImageFont.truetype("msyh.ttc", font_size)
+    except IOError:
+        try:
+            font = ImageFont.truetype("arial.ttf", font_size)
+        except IOError:
+            font = ImageFont.load_default()
+
+    # Adjust font size to fit
+    while font.getbbox(word)[2] > width and font_size > 10:
+        font_size -= 2
+        try:
+            font = ImageFont.truetype(font.path, font_size)
+        except (IOError, AttributeError): # Handle default font or other errors
+            break
+
+    text_bbox = draw.textbbox((0, 0), word, font=font)
+    text_width = text_bbox[2] - text_bbox[0]
+    text_height = text_bbox[3] - text_bbox[1]
+    x = (width - text_width) / 2
+    y = (height - text_height) / 2
+    
+    draw.text((x, y-5), word, font=font, fill='black')
+
     return image
 
 def update_word(icon):
-    """Updates the icon's title with a new random word."""
+    """Updates the icon's title and image with a new random word."""
     new_word = get_random_word()
     icon.title = new_word
+    icon.icon = create_icon_image(new_word)
 
 def on_next_word(icon, item):
     """Callback for the 'Next Word' menu item."""
@@ -44,8 +69,8 @@ def main():
     """Main function to set up and run the tray icon."""
     load_words()
     
-    image = create_icon_image()
     initial_word = get_random_word()
+    image = create_icon_image(initial_word)
     
     menu = pystray.Menu(
         pystray.MenuItem('Next Word', on_next_word),
