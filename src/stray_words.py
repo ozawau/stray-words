@@ -94,9 +94,9 @@ if sys.platform == 'darwin':
             self.wordlist_menu = build_menu(WORDLISTS_DIR) or []
             self.menu = [
                 rumps.MenuItem("Next Word"),
-                None,
+                rumps.separator,
                 rumps.MenuItem("Select Wordlist", *self.wordlist_menu),
-                None,
+                rumps.separator,
             ]
             self.title = get_random_word()
 
