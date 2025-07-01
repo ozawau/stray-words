@@ -67,7 +67,6 @@ if sys.platform == 'darwin':
     import rumps
 
     def build_menu(path):
-        """Builds a recursive menu for rumps."""
         items = []
         for item in sorted(path.iterdir()):
             if item.is_dir():
