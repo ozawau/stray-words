@@ -72,7 +72,12 @@ if sys.platform == 'darwin':
             if item.is_dir():
                 submenu = build_menu(item)
                 if submenu:
-                    items.append(rumps.MenuItem(item.name, rumps.Menu(*submenu)))
+                    # 创建一个新的菜单对象
+                    menu = rumps.MenuItem(item.name)
+                    # 为这个菜单添加子项
+                    for sub_item in submenu:
+                        menu.add(sub_item)
+                    items.append(menu)
             elif item.suffix == '.txt':
                 def callback(_, p=item):
                     config['wordlist_path'] = str(p.relative_to(PROJECT_ROOT))
@@ -92,10 +97,16 @@ if sys.platform == 'darwin':
 
             self.wordlist_menu = build_menu(WORDLISTS_DIR)
             if self.wordlist_menu:
+                # 创建一个选择词表的菜单
+                select_wordlist_menu = rumps.MenuItem("Select Wordlist")
+                # 添加所有词表子菜单
+                for item in self.wordlist_menu:
+                    select_wordlist_menu.add(item)
+                
                 self.menu = [
                     rumps.MenuItem("Next Word"),
                     rumps.separator,
-                    rumps.MenuItem("Select Wordlist", rumps.Menu(*self.wordlist_menu)),
+                    select_wordlist_menu,
                     rumps.separator,
                 ]
             else:
