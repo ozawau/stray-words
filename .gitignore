@@ -2,7 +2,6 @@
 __pycache__/
 *.py[cod]
 *$py.class
-logs
 
 # Distribution / packaging
 .Python
@@ -22,6 +21,7 @@ wheels/
 .installed.cfg
 *.egg
 MANIFEST
+logs
 
 # Installer logs
 pip-log.txt
