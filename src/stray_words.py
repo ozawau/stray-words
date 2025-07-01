@@ -74,14 +74,12 @@ if sys.platform == 'darwin':
                 if submenu_items:
                     items.append(rumps.MenuItem(item.name, *submenu_items))
             elif item.suffix == '.txt':
-                def create_callback(p):
-                    def callback(_):
-                        config['wordlist_path'] = str(p.relative_to(PROJECT_ROOT))
-                        save_config()
-                        load_words()
-                        app.title = get_random_word()
-                    return callback
-                items.append(rumps.MenuItem(item.stem, callback=create_callback(item)))
+                def callback(_, p=item):
+                    config['wordlist_path'] = str(p.relative_to(PROJECT_ROOT))
+                    save_config()
+                    load_words()
+                    app.title = get_random_word()
+                items.append(rumps.MenuItem(item.stem, callback=callback))
         return items
 
     class WordApp(rumps.App):
