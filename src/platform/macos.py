@@ -1,8 +1,16 @@
 import rumps
+import logging
 from pathlib import Path
 from model.constants import PROJECT_ROOT, WORDLISTS_DIR
 from service.words_loader import load_words, get_random_word
-from service.config_loader import config, save_config, load_config
+from service.config_loader import config as config_loader, save_config, load_config
+
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    filename=PROJECT_ROOT / 'logs/stray_words.log',
+    filemode='w'
+)
 
 def build_menu(path):
     items = []

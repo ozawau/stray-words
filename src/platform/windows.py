@@ -3,7 +3,7 @@ import pystray
 from pathlib import Path
 from model.constants import PROJECT_ROOT, WORDLISTS_DIR
 from service.words_loader import load_words, get_random_word
-from service.config_loader import config, save_config, load_config
+from service.config_loader import config as config_loader, save_config, load_config
 
 def create_icon_image(word, font_size=48):
     width, height = 64, 64
