@@ -80,6 +80,7 @@ if sys.platform == 'darwin':
                     load_words()
                     app.title = get_random_word()
                 items.append(rumps.MenuItem(item.stem, callback=callback))
+        print(f"build_menu({path}): {[type(i) for i in items]}")
         return items if items else None
 
     class WordApp(rumps.App):
