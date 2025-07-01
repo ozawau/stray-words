@@ -80,7 +80,7 @@ if sys.platform == 'darwin':
                     load_words()
                     app.title = get_random_word()
                 items.append(rumps.MenuItem(item.stem, callback=callback))
-        return items
+        return items if items else None
 
     class WordApp(rumps.App):
         def __init__(self):
@@ -90,7 +90,7 @@ if sys.platform == 'darwin':
                 self.title = "Error"
                 return
 
-            self.wordlist_menu = build_menu(WORDLISTS_DIR)
+            self.wordlist_menu = build_menu(WORDLISTS_DIR) or []
             self.menu = [
                 rumps.MenuItem("Next Word"),
                 None,
