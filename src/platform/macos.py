@@ -1,9 +1,8 @@
 import rumps
 import logging
-from pathlib import Path
 from model.constants import PROJECT_ROOT, WORDLISTS_DIR
 from service.words_loader import load_words, get_random_word
-from service.config_loader import config as config_loader, save_config, load_config
+from service.config_loader import save_config
 
 logging.basicConfig(
     level=logging.DEBUG,
@@ -70,7 +69,5 @@ class WordApp(rumps.App):
 
 def main():
     global app
-    load_config()
-    load_words()
     app = WordApp()
     app.run()

@@ -1,9 +1,8 @@
 from PIL import Image, ImageDraw, ImageFont
 import pystray
-from pathlib import Path
 from model.constants import PROJECT_ROOT, WORDLISTS_DIR
 from service.words_loader import load_words, get_random_word
-from service.config_loader import config as config_loader, save_config, load_config
+from service.config_loader import save_config
 
 def create_icon_image(word, font_size=48):
     width, height = 64, 64
@@ -67,9 +66,6 @@ def build_menu_items(path, icon):
     return items
 
 def main():
-    load_config()
-    load_words()
-    
     initial_word = get_random_word()
     
     icon = pystray.Icon("wordlist_app")

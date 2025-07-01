@@ -1,6 +1,5 @@
 import random
 import logging
-from pathlib import Path
 from service.config_loader import config as config_loader
 from model.constants import PROJECT_ROOT, WORDLISTS_DIR
 
