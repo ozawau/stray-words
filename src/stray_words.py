@@ -80,8 +80,7 @@ if sys.platform == 'darwin':
                     load_words()
                     app.title = get_random_word()
                 items.append(rumps.MenuItem(item.stem, callback=callback))
-        print(f"build_menu({path}): {[type(i) for i in items]}")
-        return items if items else None
+        return items  # 永远返回 list
 
     class WordApp(rumps.App):
         def __init__(self):
@@ -91,13 +90,21 @@ if sys.platform == 'darwin':
                 self.title = "Error"
                 return
 
-            self.wordlist_menu = build_menu(WORDLISTS_DIR) or []
-            self.menu = [
-                rumps.MenuItem("Next Word"),
-                rumps.separator,
-                rumps.MenuItem("Select Wordlist", *self.wordlist_menu),
-                rumps.separator,
-            ]
+            self.wordlist_menu = build_menu(WORDLISTS_DIR)
+            if self.wordlist_menu:
+                self.menu = [
+                    rumps.MenuItem("Next Word"),
+                    rumps.separator,
+                    rumps.MenuItem("Select Wordlist", *self.wordlist_menu),
+                    rumps.separator,
+                ]
+            else:
+                self.menu = [
+                    rumps.MenuItem("Next Word"),
+                    rumps.separator,
+                    rumps.MenuItem("Select Wordlist (No .txt found)"),
+                    rumps.separator,
+                ]
             self.title = get_random_word()
 
         @rumps.clicked("Next Word")
