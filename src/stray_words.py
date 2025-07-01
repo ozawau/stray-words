@@ -70,9 +70,9 @@ if sys.platform == 'darwin':
         items = []
         for item in sorted(path.iterdir()):
             if item.is_dir():
-                submenu_items = build_menu(item)
-                if submenu_items:
-                    items.append(rumps.MenuItem(item.name, *submenu_items))
+                submenu = build_menu(item)
+                if submenu:
+                    items.append(rumps.MenuItem(item.name, rumps.Menu(*submenu)))
             elif item.suffix == '.txt':
                 def callback(_, p=item):
                     config['wordlist_path'] = str(p.relative_to(PROJECT_ROOT))
@@ -80,7 +80,7 @@ if sys.platform == 'darwin':
                     load_words()
                     app.title = get_random_word()
                 items.append(rumps.MenuItem(item.stem, callback=callback))
-        return items  # 永远返回 list
+        return items
 
     class WordApp(rumps.App):
         def __init__(self):
@@ -95,7 +95,7 @@ if sys.platform == 'darwin':
                 self.menu = [
                     rumps.MenuItem("Next Word"),
                     rumps.separator,
-                    rumps.MenuItem("Select Wordlist", *self.wordlist_menu),
+                    rumps.MenuItem("Select Wordlist", rumps.Menu(*self.wordlist_menu)),
                     rumps.separator,
                 ]
             else:
