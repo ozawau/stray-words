@@ -73,7 +73,7 @@ if sys.platform == 'darwin':
             if item.is_dir():
                 submenu_items = build_menu(item)
                 if submenu_items:
-                    items.append(rumps.MenuItem(item.name, submenu_items))
+                    items.append(rumps.MenuItem(item.name, *submenu_items))
             elif item.suffix == '.txt':
                 def create_callback(p):
                     def callback(_):
