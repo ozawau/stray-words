@@ -27,16 +27,15 @@ class Config:
                 except yaml.YAMLError as e:
                     self.data = {}
                     logger.error(f"Error parsing config file: {e}")
-        else:
-            logger.warning(f"Config file not found, creating new at {CONFIG_FILE}")
-            CONFIG_FILE.parent.mkdir(parents=True, exist_ok=True)
-            with open(CONFIG_FILE, 'w', encoding='utf-8') as f:
-                yaml.dump({"wordlist_path": "wordlists/english/cet4.txt"}, f)
-            self.data = {"wordlist_path": "wordlists/english/cet4.txt"}
-            logger.info(f"Created new config with default wordlist_path")
     
     def get(self, key, default=None):
         return self.data.get(key, default)
+        
+    def __setitem__(self, key, value):
+        self.data[key] = value
+        
+    def __getitem__(self, key):
+        return self.data[key]
 
 config = Config()
 

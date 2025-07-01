@@ -2,7 +2,7 @@ import rumps
 import logging
 from model.constants import PROJECT_ROOT, WORDLISTS_DIR
 from service.words_loader import load_words, get_random_word
-from service.config_loader import save_config
+from service.config_loader import save_config,config
 
 logging.basicConfig(
     level=logging.DEBUG,

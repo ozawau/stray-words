@@ -50,6 +50,7 @@ venv.bak/
 .idea/
 *.swp
 *.swo
+.vim
 
 # macOS
 .DS_Store
