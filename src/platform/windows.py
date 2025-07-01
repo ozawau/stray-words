@@ -2,9 +2,11 @@ from PIL import Image, ImageDraw, ImageFont
 import pystray
 from model.constants import PROJECT_ROOT, WORDLISTS_DIR
 from service.words_loader import load_words, get_random_word
-from service.config_loader import save_config
+from service.config_loader import save_config, config
 
-def create_icon_image(word, font_size=48):
+def create_icon_image(font_size=48):
+    # 始终使用 'ABC' 作为图标内容
+    display_text = 'ABC'
     width, height = 64, 64
     image = Image.new('RGB', (width, height), 'white')
     draw = ImageDraw.Draw(image)
@@ -16,7 +18,7 @@ def create_icon_image(word, font_size=48):
         except IOError:
             font = ImageFont.load_default()
     
-    while hasattr(font, 'getbbox') and font.getbbox(word)[2] > width and font_size > 10:
+    while hasattr(font, 'getbbox') and font.getbbox(display_text)[2] > width and font_size > 10:
         font_size -= 2
         try:
             font = ImageFont.truetype(font.path, font_size)
@@ -25,28 +27,28 @@ def create_icon_image(word, font_size=48):
             break
     
     if hasattr(draw, 'textbbox'):
-        text_bbox = draw.textbbox((0, 0), word, font=font)
+        text_bbox = draw.textbbox((0, 0), display_text, font=font)
         text_width = text_bbox[2] - text_bbox[0]
         text_height = text_bbox[3] - text_bbox[1]
     else:
-        text_width, text_height = draw.textsize(word, font=font)
+        text_width, text_height = draw.textsize(display_text, font=font)
 
     x = (width - text_width) / 2
     y = (height - text_height) / 2 - 5
-    draw.text((x, y), word, font=font, fill='black')
+    draw.text((x, y), display_text, font=font, fill='black')
     return image
 
 def update_word(icon):
     new_word = get_random_word()
     icon.title = new_word
-    icon.icon = create_icon_image(new_word)
+    icon.icon = create_icon_image()
 
 def on_quit(icon, item):
     icon.stop()
     
 def create_wordlist_selection_handler(icon, path):
     def handler(item):
-        config['wordlist_path'] = str(path.relative_to(PROJECT_ROOT))
+        config.data['wordlist_path'] = str(path.relative_to(PROJECT_ROOT))
         save_config()
         load_words()
         update_word(icon)
@@ -69,7 +71,7 @@ def main():
     initial_word = get_random_word()
     
     icon = pystray.Icon("wordlist_app")
-    icon.icon = create_icon_image(initial_word)
+    icon.icon = create_icon_image()
     icon.title = initial_word
 
     if not WORDLISTS_DIR.is_dir():
