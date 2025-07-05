@@ -57,3 +57,11 @@ venv.bak/
 
 # Config files
 config/config.json
+
+# === stray-words 项目补充 ===
+logs/
+*.log
+release/
+resource/stray-words.db
+release/resource/stray-words.db
+*.exe
