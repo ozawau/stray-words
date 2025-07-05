@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-将日语 N5 单词表（n5.txt）导入 SQLite 数据库的工具脚本
+将日语 N4 单词表（n4.txt）导入 SQLite 数据库的工具脚本
 """
 
 import sqlite3
@@ -8,10 +8,10 @@ from pathlib import Path
 from datetime import datetime
 
 # 配置参数
-WORDBOOK_NAME = "n5"
+WORDBOOK_NAME = "n4"
 WORDBOOK_LANGUAGE = "japanese"
 WORDBOOK_TYPE = 0
-N5_TXT_PATH = Path(__file__).parent.parent.parent / "wordlists" / "japanese" / "n5.txt"
+N5_TXT_PATH = Path(__file__).parent.parent.parent / "wordlists" / "japanese" / "n4.txt"
 DB_PATH = Path(__file__).parent.parent.parent / "resource" / "stray-words.db"
 
 def create_connection(db_file):

@@ -31,6 +31,7 @@ def build_menu():
             def callback(_, book=wb):
                 select_wordbook(book.id)
                 app.title = get_random_word()
+                self.refresh_config_menu()  # 切换后刷新菜单
             lang_menu.add(rumps.MenuItem(wb.name, callback=callback))
         items.append(lang_menu)
     return items

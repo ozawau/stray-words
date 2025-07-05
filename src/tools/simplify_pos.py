@@ -40,7 +40,7 @@ MODIFIER_POS = [
     'な-adjective', 'い-adjective', 'Katakana', 'Wasei', 'Temporal noun', 'Suru verb'
 ]
 
-INPUT_PATH = os.path.join(os.path.dirname(__file__), '../../wordlists/japanese/n5.txt')
+INPUT_PATH = os.path.join(os.path.dirname(__file__), '../../wordlists/japanese/n4.txt')
 INPUT_PATH = os.path.normpath(INPUT_PATH)
 
 def simplify_pos(pos_str):

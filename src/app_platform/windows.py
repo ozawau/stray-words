@@ -113,15 +113,6 @@ def on_skip(icon, item):
     print("Debug: on_skip function called")  # 调试输出
     update_word(icon, force_next=True)
 
-def create_wordlist_selection_handler(icon, wordbook_id):
-    def handler(item):
-        global show_definition, show_definition_once
-        select_wordbook(wordbook_id)
-        show_definition = False
-        show_definition_once = False
-        update_word(icon)
-    return handler
-
 def get_view_menu(icon):
     def make_item(view_key, field):
         def toggle(icon, item):
@@ -144,19 +135,6 @@ def get_view_menu(icon):
             make_view_submenu('definition_view'),
         )
     )
-
-def build_menu_items(icon):
-    items = []
-    language_groups = get_wordbooks_grouped_by_language()
-    # 创建两级菜单
-    for lang, wbs in sorted(language_groups.items()):
-        lang_menu_items = []
-        for wb in sorted(wbs, key=lambda x: x.name):
-            handler = create_wordlist_selection_handler(icon, wb.id)
-            lang_menu_items.append(pystray.MenuItem(wb.name, handler))
-        if lang_menu_items:
-            items.append(pystray.MenuItem(lang, pystray.Menu(*lang_menu_items)))
-    return items
 
 def main(daemon_mode=False):
     if daemon_mode:
@@ -196,29 +174,10 @@ def main(daemon_mode=False):
         else:
             on_show_definition(icon, None)
     
-    try:
-        wordlist_menu_items = build_menu_items(icon)
-    except Exception as e:
-        menu = pystray.Menu(
-            pystray.MenuItem("Failed to load wordbooks", None),
-            pystray.MenuItem('Quit', on_quit)
-        )
-    else:
-        configuration_menu = pystray.MenuItem(
-            'Configuration',
-            pystray.Menu(
-                pystray.MenuItem('Select Wordlist', pystray.Menu(*wordlist_menu_items)),
-                get_view_menu(icon),
-            )
-        )
-        
-        # 根据配置设置默认菜单项
+    def refresh_menu():
         from service.config_loader import config as config_loader
         click_action = config_loader.get('click_action', 'definition')
-        print(f"Debug: click_action = {click_action}")  # 调试输出
-        
         menu_items = []
-        
         # 添加当前 wordlist 信息显示
         current_wordbook_id = config_loader.get('wordbook_id')
         if current_wordbook_id:
@@ -231,7 +190,6 @@ def main(daemon_mode=False):
             wordlist_info = "No wordlist selected"
         menu_items.append(pystray.MenuItem(wordlist_info, None, enabled=False))
         menu_items.append(pystray.Menu.SEPARATOR)
-        
         # 动态添加 default 菜单项
         if click_action == 'definition':
             menu_items.append(pystray.MenuItem('Definition', lambda: on_show_definition(icon, None), default=True))
@@ -252,11 +210,8 @@ def main(daemon_mode=False):
             menu_items.append(pystray.MenuItem('Definition', lambda: on_show_definition(icon, None)))
         else:
             menu_items.append(pystray.MenuItem('Definition', lambda: on_show_definition(icon, None), default=True))
-
-        # 其余常规菜单项
         if click_action != 'copy':
             menu_items.append(pystray.MenuItem('Copy Word', on_copy_word))
-        # Mark 子菜单
         mark_menu_items = [
             pystray.MenuItem('Yes', lambda icon, item: on_mark_status(icon, 2)),
             pystray.MenuItem('Blur', lambda icon, item: on_mark_status(icon, 1)),
@@ -270,9 +225,50 @@ def main(daemon_mode=False):
             pystray.Menu.SEPARATOR,
             pystray.MenuItem('Quit', on_quit)
         ])
-        menu = pystray.Menu(*menu_items)
+        icon.menu = pystray.Menu(*menu_items)
 
-        for item in menu_items:
-            print(f"Menu item: {item.text}, default={item.default}")
-    icon.menu = menu
+    def create_wordlist_selection_handler(icon, wordbook_id):
+        def handler(item):
+            global show_definition, show_definition_once
+            select_wordbook(wordbook_id)
+            show_definition = False
+            show_definition_once = False
+            update_word(icon)
+            refresh_menu()  # 切换后刷新菜单
+        return handler
+
+    def build_menu_items(icon):
+        items = []
+        language_groups = get_wordbooks_grouped_by_language()
+        # 创建两级菜单
+        for lang, wbs in sorted(language_groups.items()):
+            lang_menu_items = []
+            for wb in sorted(wbs, key=lambda x: x.name):
+                handler = create_wordlist_selection_handler(icon, wb.id)
+                lang_menu_items.append(pystray.MenuItem(wb.name, handler))
+            if lang_menu_items:
+                items.append(pystray.MenuItem(lang, pystray.Menu(*lang_menu_items)))
+        return items
+
+    try:
+        wordlist_menu_items = build_menu_items(icon)
+    except Exception as e:
+        menu = pystray.Menu(
+            pystray.MenuItem("Failed to load wordbooks", None),
+            pystray.MenuItem('Quit', on_quit)
+        )
+        icon.menu = menu
+        icon.run()
+        return
+
+    configuration_menu = pystray.MenuItem(
+        'Configuration',
+        pystray.Menu(
+            pystray.MenuItem('Select Wordlist', pystray.Menu(*wordlist_menu_items)),
+            get_view_menu(icon),
+        )
+    )
+
+    # 首次启动时也用 refresh_menu
+    refresh_menu()
     icon.run()
