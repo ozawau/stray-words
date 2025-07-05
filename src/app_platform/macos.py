@@ -152,7 +152,22 @@ class WordApp(rumps.App):
         mark_menu.add(rumps.MenuItem("Blur", callback=lambda _: self.mark_status(1)))
         mark_menu.add(rumps.MenuItem("No", callback=lambda _: self.mark_status(0)))
         mark_menu.add(rumps.MenuItem("Skip", callback=self.skip_word))
+        
+        # 添加当前 wordlist 信息显示
+        from service.config_loader import config as config_loader
+        current_wordbook_id = config_loader.get('wordbook_id')
+        if current_wordbook_id:
+            current_wordbook = wordbook_dao.get_by_id(current_wordbook_id)
+            if current_wordbook:
+                wordlist_info = f"{current_wordbook.language} {current_wordbook.name}"
+            else:
+                wordlist_info = "Unknown wordlist"
+        else:
+            wordlist_info = "No wordlist selected"
+        
         self.menu = [
+            rumps.MenuItem(wordlist_info, callback=None),
+            rumps.separator,
             rumps.MenuItem("Definition", callback=self.show_current_definition),
             rumps.MenuItem("Copy Word", callback=self.copy_word),
             mark_menu,

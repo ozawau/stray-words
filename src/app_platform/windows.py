@@ -218,6 +218,20 @@ def main(daemon_mode=False):
         print(f"Debug: click_action = {click_action}")  # 调试输出
         
         menu_items = []
+        
+        # 添加当前 wordlist 信息显示
+        current_wordbook_id = config_loader.get('wordbook_id')
+        if current_wordbook_id:
+            current_wordbook = wordbook_dao.get_by_id(current_wordbook_id)
+            if current_wordbook:
+                wordlist_info = f"{current_wordbook.language} {current_wordbook.name}"
+            else:
+                wordlist_info = "Unknown wordlist"
+        else:
+            wordlist_info = "No wordlist selected"
+        menu_items.append(pystray.MenuItem(wordlist_info, None, enabled=False))
+        menu_items.append(pystray.Menu.SEPARATOR)
+        
         # 动态添加 default 菜单项
         if click_action == 'definition':
             menu_items.append(pystray.MenuItem('Definition', lambda: on_show_definition(icon, None), default=True))
