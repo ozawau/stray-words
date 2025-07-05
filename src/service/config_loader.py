@@ -28,7 +28,7 @@ class ConfigLoader:
                 logger.debug(f"Loaded config: {self._config}")
             except yaml.YAMLError as e:
                 logger.error(f"Error parsing config file: {e}")
-                self._config = Config(wordlist_path="")
+                self._config = Config(wordbook_id=None)
         return self._config
     
     def get(self, key: str, default: Any = None) -> Any:
