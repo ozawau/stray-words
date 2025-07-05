@@ -1,0 +1,10 @@
+click_action: definition
+view:
+  definition_view:
+  - pronunciation
+  - part
+  - definition
+  word_view:
+  - word
+  - part
+wordbook_id: 2

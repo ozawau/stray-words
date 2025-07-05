@@ -9,7 +9,9 @@ import sys
 import subprocess
 from service.view_menu_service import get_view_config, update_view_config, get_word_view_display, VIEW_FIELDS
 
-wordbook_dao = WordbookDAO(str(PROJECT_ROOT / "resource" / "stray-words.db"))
+# 使用PROJECT_ROOT常量，它会根据是否是打包环境自动调整路径
+db_path = str(PROJECT_ROOT / "resource" / "stray-words.db")
+wordbook_dao = WordbookDAO(db_path)
 
 # 在main函数前添加全局变量
 show_definition_once = False
@@ -105,7 +107,8 @@ def on_mark_status(icon, status):
         word_obj.status = status
         if status in (0, 1):  # No 或 Blur
             word_obj.mistake_count = (word_obj.mistake_count or 0) + 1
-        wordlist_dao = WordlistDAO(str(PROJECT_ROOT / "resource" / "stray-words.db"))
+        # 使用与前面相同的数据库路径
+        wordlist_dao = WordlistDAO(db_path)
         wordlist_dao.update(word_obj)
     update_word(icon, force_next=True)
 

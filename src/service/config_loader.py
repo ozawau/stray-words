@@ -8,6 +8,7 @@ from model.constants import PROJECT_ROOT
 from model.config import Config
 
 logger = logging.getLogger(__name__)
+# 使用PROJECT_ROOT常量，它会根据是否是打包环境自动调整路径
 CONFIG_FILE = PROJECT_ROOT / "config/config.yaml"
 
 class ConfigLoader:

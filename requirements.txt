@@ -1,5 +1,6 @@
 rumps==0.4.0
 pystray==0.19.4
-Pillow==10.0.0
+Pillow==*
 pyyaml==6.0.1
 pyperclip
+pyinstaller==6.0.0

@@ -7,7 +7,9 @@ from service.dao.wordlist_dao import WordlistDAO
 
 logger = logging.getLogger(__name__)
 words = []
-wordlist_dao = WordlistDAO(str(PROJECT_ROOT / "resource" / "stray-words.db"))
+# 使用PROJECT_ROOT常量，它会根据是否是打包环境自动调整路径
+db_path = str(PROJECT_ROOT / "resource" / "stray-words.db")
+wordlist_dao = WordlistDAO(db_path)
 last_word_obj = None
 
 def load_words():
@@ -49,21 +51,32 @@ def format_word_by_view(view, word_obj):
 
 def get_random_word():
     """返回随机单词"""
-    global last_word_obj
-    if not words:
+    global last_word_obj, words
+    
+    # 如果words列表为空或只包含提示信息，尝试重新加载
+    if not words or (len(words) == 1 and isinstance(words[0], str) and words[0] in ["No words loaded", "Please select a wordbook", "Wordbook is empty"]):
+        # 重新加载单词
+        load_words()
+    
+    # 如果重新加载后words仍然为空或只包含提示信息
+    if not words or (len(words) == 1 and isinstance(words[0], str) and words[0] in ["No words loaded", "Please select a wordbook", "Wordbook is empty"]):
         last_word_obj = None
-        return "No words loaded"
+        return words[0] if words else "No words loaded"
+    
     # 重新获取wordbook_id下的所有单词对象
     wordbook_id = config_loader.get('wordbook_id')
     if not wordbook_id:
         last_word_obj = None
         return "Please select a wordbook"
+    
     word_objects = wordlist_dao.get_by_wordbook(wordbook_id)
     if not word_objects:
         last_word_obj = None
         return "Wordbook is empty"
+    
     word = random.choice(word_objects)
     last_word_obj = word
+    
     # 动态获取word_view
     view = config_loader.get('view', {})
     word_view = view.get('word_view', ['word'])
