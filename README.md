@@ -35,12 +35,12 @@
 
 1. 运行打包脚本：
    ```
-   build.bat
+   package.bat
    ```
    或者手动执行：
    ```
    pip install -r requirements.txt
-   python build.py
+   python package.py
    ```
 
 2. 打包完成后，可执行文件将位于`release`目录中
